@@ -3,8 +3,11 @@
 
 #include <GLFW/glfw3.h>
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#define FOV_IN_DEGREES 90.0f;
 
 void glfwErrorCallback(int errorCode, const char *description);
 
@@ -12,6 +15,8 @@ unsigned int createShader(const char *filename, GLenum shaderType);
 
 unsigned int createShaderProgram(unsigned int vertexShader,
                                  unsigned int fragmentShader);
+
+void transformTo2D(float *vertices, unsigned int size);
 
 int main(void) {
   if (!glfwInit()) {
@@ -36,9 +41,15 @@ int main(void) {
     return 1;
   }
 
-  const float vertices[] = {
-      0.0f, 0.5f, 0.0f, -0.5f, -0.5f, -0.0f, 0.5f, -0.5f, 0.0f,
+  float vertices[] = {
+      // clang-format off
+      0.0f, 0.8f, 1.5f,
+      -0.8f, -0.8f, 2.0f,
+      0.8f, -0.8f, 4.0f
+      // clang-format on
   };
+
+  transformTo2D(vertices, 3);
 
   unsigned int vertexBuffer = 0;
   glGenBuffers(1, &vertexBuffer);
@@ -150,4 +161,16 @@ unsigned int createShaderProgram(unsigned int vertexShader,
   }
 
   return shaderProgram;
+}
+
+void transformTo2D(float *vertices, unsigned int triplesSize) {
+  const float fov = FOV_IN_DEGREES * (M_PI / 180.0f);
+
+  for (unsigned int i = 0; i < triplesSize * 3; i++) {
+    if ((i + 1) % 3 == 0)
+      continue;
+
+    const float z = vertices[(i / 3) * 3 + 2];
+    vertices[i] = vertices[i] / (z * tan(fov / 2.0f));
+  }
 }
