@@ -14,7 +14,10 @@ unsigned int createShaderProgram(unsigned int vertexShader,
                                  unsigned int fragmentShader);
 
 int main(void) {
-  glfwInit();
+  if (!glfwInit()) {
+    printf("Failed to intialize GLFW!\n");
+    return 1;
+  }
 
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
@@ -27,9 +30,10 @@ int main(void) {
 
   glfwMakeContextCurrent(window);
 
-  if (window == NULL) {
+  if (!window) {
     printf("Failed to create GLFW window!\n");
-    exit(1);
+    glfwTerminate();
+    return 1;
   }
 
   const float vertices[] = {
@@ -73,6 +77,15 @@ int main(void) {
 
     glfwSwapBuffers(window);
   }
+
+  glDeleteBuffers(1, &vertexBuffer);
+  glDeleteVertexArrays(1, &vertexArray);
+  glDeleteShader(vertexShader);
+  glDeleteShader(fragmentShader);
+  glDeleteProgram(shaderProgram);
+
+  glfwDestroyWindow(window);
+  glfwTerminate();
 
   return 0;
 }
