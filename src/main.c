@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define FOV_IN_DEGREES 90.0f;
+#define FOV_IN_DEGREES 90.0f
 
 void glfwErrorCallback(int errorCode, const char *description);
 
@@ -45,7 +45,7 @@ int main(void) {
       // clang-format off
       0.0f, 0.8f, 1.5f,
       -0.8f, -0.8f, 2.0f,
-      0.8f, -0.8f, 4.0f
+      0.8f, -0.8f, 4.0f,
       // clang-format on
   };
 
