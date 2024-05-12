@@ -2,4 +2,6 @@
 
 layout(location = 0) in vec3 aPos;
 
-void main() { gl_Position = vec4(aPos.xy, 1.0f, 1.0f); }
+uniform mat4 uProjection;
+
+void main() { gl_Position = uProjection * vec4(aPos.xyz, 1.0f); }

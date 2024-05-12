@@ -7,7 +7,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define FOV_IN_DEGREES 90.0f
+#define DEG_TO_RAD M_PI / 180
+
+#define WIDTH 800
+#define HEIGHT 600
 
 void glfwErrorCallback(int errorCode, const char *description);
 
@@ -16,7 +19,8 @@ unsigned int createShader(const char *filename, GLenum shaderType);
 unsigned int createShaderProgram(unsigned int vertexShader,
                                  unsigned int fragmentShader);
 
-void transformTo2D(float *vertices, unsigned int size);
+void createProjection(float *matrix, float fovy, float aspectRatio, float front,
+                      float back);
 
 int main(void) {
   if (!glfwInit()) {
@@ -31,7 +35,7 @@ int main(void) {
 
   glfwSetErrorCallback(glfwErrorCallback);
 
-  GLFWwindow *window = glfwCreateWindow(800, 600, "Phy", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Phy", NULL, NULL);
 
   glfwMakeContextCurrent(window);
 
@@ -43,13 +47,11 @@ int main(void) {
 
   float vertices[] = {
       // clang-format off
-      0.0f, 0.8f, 1.5f,
-      -0.8f, -0.8f, 2.0f,
-      0.8f, -0.8f, 4.0f,
+       0.0f,  1.0f, -1.0f,
+      -1.0f, -1.0f, -1.0f,
+       1.0f, -1.0f, -1.0f,
       // clang-format on
   };
-
-  transformTo2D(vertices, 3);
 
   unsigned int vertexBuffer = 0;
   glGenBuffers(1, &vertexBuffer);
@@ -77,6 +79,13 @@ int main(void) {
 
   glUseProgram(shaderProgram);
   glBindVertexArray(vertexArray);
+
+  int uProjection = glGetUniformLocation(shaderProgram, "uProjection");
+
+  float matrix[16] = {0};
+  createProjection(matrix, 90, (float)WIDTH / HEIGHT, 0.1f, 10.0f);
+
+  glUniformMatrix4fv(uProjection, 1, GL_FALSE, matrix);
 
   while (!glfwWindowShouldClose(window)) {
     glfwPollEvents();
@@ -163,14 +172,16 @@ unsigned int createShaderProgram(unsigned int vertexShader,
   return shaderProgram;
 }
 
-void transformTo2D(float *vertices, unsigned int triplesSize) {
-  const float fov = FOV_IN_DEGREES * (M_PI / 180.0f);
+void createProjection(float *matrix, float fovy, float aspectRatio, float front,
+                      float back) {
+  float tangent = tan(fovy / 2 * DEG_TO_RAD);
+  float top = front * tangent;
+  float right = top * aspectRatio;
 
-  for (unsigned int i = 0; i < triplesSize * 3; i++) {
-    if ((i + 1) % 3 == 0)
-      continue;
-
-    const float z = vertices[(i / 3) * 3 + 2];
-    vertices[i] = vertices[i] / (z * tan(fov / 2.0f));
-  }
+  matrix[0] = front / right;
+  matrix[5] = front / top;
+  matrix[10] = -(back + front) / (back - front);
+  matrix[11] = -1;
+  matrix[14] = -(2 * back * front) / (back - front);
+  matrix[15] = 0;
 }
