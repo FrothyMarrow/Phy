@@ -47,7 +47,11 @@ int main(void) {
 
   float vertices[] = {
       // clang-format off
-       0.0f,  1.0f, -1.0f,
+       1.0f,  1.0f, -1.0f,
+      -1.0f,  1.0f, -1.0f,
+      -1.0f, -1.0f, -1.0f,
+
+       1.0f,  1.0f, -1.0f,
       -1.0f, -1.0f, -1.0f,
        1.0f, -1.0f, -1.0f,
       // clang-format on
@@ -93,7 +97,7 @@ int main(void) {
     glClear(GL_COLOR_BUFFER_BIT);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 
     glfwSwapBuffers(window);
   }
