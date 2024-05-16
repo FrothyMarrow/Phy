@@ -15,6 +15,22 @@
     };
   in
   {
+    packages.${system}.default = pkgs.stdenv.mkDerivation {
+        name = "phy";
+        src = ./.;
+
+        nativeBuildInputs = [pkgs.cmake];
+
+        buildInputs = [pkgs.darwin.apple_sdk.frameworks.OpenGL pkgs.glfw];
+
+        installPhase = ''
+            mkdir -p $out/shader
+            cp -r $src/shader $out/shader
+            mkdir $out/bin
+            cp phy $out/bin
+        '';
+   };
+
     devShells.${system}.default = pkgs.mkShell {
       packages = [
         pkgs.clangStdenv

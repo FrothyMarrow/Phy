@@ -129,9 +129,9 @@ int main(void) {
   glBindVertexArray(0);
 
   unsigned int vertexShader =
-      createShader("../shader/vertex.glsl", GL_VERTEX_SHADER);
+      createShader("./shader/vertex.glsl", GL_VERTEX_SHADER);
   unsigned int fragmentShader =
-      createShader("../shader/fragment.glsl", GL_FRAGMENT_SHADER);
+      createShader("./shader/fragment.glsl", GL_FRAGMENT_SHADER);
 
   unsigned int shaderProgram =
       createShaderProgram(vertexShader, fragmentShader);
@@ -223,7 +223,7 @@ unsigned int createShader(const char *filename, GLenum shaderType) {
   FILE *file = fopen(filename, "r");
 
   if (!file) {
-    printf("Failed to open file: %s", filename);
+    printf("Failed to open file: %s\n", filename);
     return 0;
   }
 
@@ -250,7 +250,7 @@ unsigned int createShader(const char *filename, GLenum shaderType) {
   glGetShaderiv(shader, GL_COMPILE_STATUS, &shaderCompiled);
 
   if (!shaderCompiled) {
-    printf("Fragment shader compilation failed\n");
+    printf("Shader compilation failed\n");
     return 0;
   }
 
