@@ -12,9 +12,14 @@ find_package(GLFW3 REQUIRED)
 
 target_sources(phy PRIVATE
         src/main.c
-    )
+        src/vector.c
+)
+
+target_include_directories(phy PRIVATE
+    include
+)
 
 target_link_libraries(phy PRIVATE
         glfw
         "-framework OpenGL"
-    )
+)

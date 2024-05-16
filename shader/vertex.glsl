@@ -3,5 +3,8 @@
 layout(location = 0) in vec3 aPos;
 
 uniform mat4 uProjection;
+uniform mat4 uView;
 
-void main() { gl_Position = uProjection * vec4(aPos.xyz, 1.0f); }
+out vec2 fragColor;
+
+void main() { gl_Position = uProjection * uView * vec4(aPos.xyz, 1.0f); }
