@@ -129,9 +129,9 @@ int main(void) {
   glBindVertexArray(0);
 
   unsigned int vertexShader =
-      createShader("./shader/vertex.glsl", GL_VERTEX_SHADER);
+      createShader("../shader/vertex.glsl", GL_VERTEX_SHADER);
   unsigned int fragmentShader =
-      createShader("./shader/fragment.glsl", GL_FRAGMENT_SHADER);
+      createShader("../shader/fragment.glsl", GL_FRAGMENT_SHADER);
 
   unsigned int shaderProgram =
       createShaderProgram(vertexShader, fragmentShader);

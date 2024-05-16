@@ -22,11 +22,15 @@
         nativeBuildInputs = [pkgs.cmake];
 
         buildInputs = [pkgs.darwin.apple_sdk.frameworks.OpenGL pkgs.glfw];
-
+        
+        patchPhase = ''
+          sed -i "s|../shader/vertex.glsl|$out/shader/vertex.glsl|" src/main.c
+          sed -i "s|../shader/fragment.glsl|$out/shader/fragment.glsl|" src/main.c
+        '';
+        
         installPhase = ''
-            mkdir -p $out/shader
-            cp -r $src/shader $out/shader
-            mkdir $out/bin
+            mkdir -p $out/bin
+            cp -r $src/shader $out
             cp phy $out/bin
         '';
    };
