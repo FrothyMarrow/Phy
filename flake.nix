@@ -7,44 +7,27 @@
     self,
     nixpkgs,
     ...
-  } @ inputs:
-  let
+  } @ inputs: let
     system = "aarch64-darwin";
     pkgs = import nixpkgs {
       inherit system;
     };
-  in
-  {
-    packages.${system}.default = pkgs.stdenv.mkDerivation {
-        name = "phy";
-        src = ./.;
-
-        nativeBuildInputs = [pkgs.cmake];
-
-        buildInputs = [pkgs.darwin.apple_sdk.frameworks.OpenGL pkgs.glfw];
-        
-        patchPhase = ''
-          sed -i "s|../shader/vertex.glsl|$out/shader/vertex.glsl|" src/main.c
-          sed -i "s|../shader/fragment.glsl|$out/shader/fragment.glsl|" src/main.c
-        '';
-        
-        installPhase = ''
-            mkdir -p $out/bin
-            cp -r $src/shader $out
-            cp phy $out/bin
-        '';
-   };
-
+  in {
     devShells.${system}.default = pkgs.mkShell {
       packages = [
         pkgs.clangStdenv
-        pkgs.clang-tools
-        pkgs.cmake
         pkgs.glfw
+        pkgs.zls
+        pkgs.zig
         pkgs.darwin.apple_sdk.frameworks.OpenGL
       ];
+
+      shellHook = ''
+        # Zig compiler does not support the -isysroot flag and treats it as an error
+        export NIX_CFLAGS_COMPILE=$(echo $NIX_CFLAGS_COMPILE | sed 's|-isysroot /nix/store/[^ ]*||')
+      '';
     };
-    
+
     formatter.${system} = pkgs.alejandra;
   };
 }
