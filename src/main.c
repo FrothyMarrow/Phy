@@ -1,6 +1,3 @@
-#define GL_SILENCE_DEPRECATION
-#define GLFW_INCLUDE_GLCOREARB
-
 #include "vector.h"
 
 #include <GLFW/glfw3.h>

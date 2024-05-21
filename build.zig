@@ -13,10 +13,12 @@ pub fn build(b: *std.Build) void {
         .target = target,
     });
 
+    phy.defineCMacro("GL_SILENCE_DEPRECATION", &.{});
+    phy.defineCMacro("GLFW_INCLUDE_GLCOREARB", &.{});
+
     phy.addIncludePath(.{
         .src_path = .{ .owner = b, .sub_path = "include" },
     });
-
     phy.addCSourceFiles(.{
         .root = .{
             .src_path = .{ .owner = b, .sub_path = "src" },
