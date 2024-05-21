@@ -28,9 +28,12 @@ pub fn build(b: *std.Build) void {
             "vector.c",
         },
     });
-
     phy.linkSystemLibrary("glfw");
     phy.linkFramework("OpenGL");
 
     b.installArtifact(phy);
+
+    const phy_run = b.addRunArtifact(phy);
+    const run_step = b.step("run", "Run the phy binary");
+    run_step.dependOn(&phy_run.step);
 }
