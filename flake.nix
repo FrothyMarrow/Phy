@@ -54,7 +54,7 @@
       ];
 
       shellHook = ''
-        export NIX_LDFLAGS=${nixLDFlags}$NIX_LDFAGS
+        export NIX_LDFLAGS=${nixLDFlags}$NIX_LDFLAGS
         ${removeSysroot}
       '';
     };
