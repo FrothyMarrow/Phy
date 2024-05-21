@@ -2,3 +2,5 @@
 .direnv
 build
 result
+zig-cache
+zig-out
