@@ -39,9 +39,11 @@ fn createGLShader(path: []const u8, shader_type: u32) ShaderError!u32 {
     const file = dir.openFile(path, .{
         .mode = .read_only,
     }) catch {
+        std.debug.print("Failed to open file: {s}\n", .{path});
         return ShaderError.ShaderFileNotOpenedError;
     };
     const stat = file.stat() catch {
+        std.debug.print("Failed to stat file: {s}\n", .{path});
         return ShaderError.ShaderFileStatError;
     };
 
@@ -50,12 +52,14 @@ fn createGLShader(path: []const u8, shader_type: u32) ShaderError!u32 {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
     const buffer = allocator.alloc(u8, stat.size) catch {
+        std.debug.print("Failed to allocate buffer for file: {s}\n", .{path});
         return ShaderError.ShaderAllocationError;
     };
 
     defer allocator.free(buffer);
 
     file.reader().readNoEof(buffer) catch {
+        std.debug.print("Failed to read file: {s}\n", .{path});
         return ShaderError.ShaderFileNotReadError;
     };
 
