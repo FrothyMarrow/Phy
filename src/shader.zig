@@ -51,7 +51,10 @@ fn createGLShader(path: []const u8, shader_type: u32) ShaderError!u32 {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
     defer if (gpa.deinit() != .ok) {
-        @panic("GeneralPurposeAllocator check failed, leaked memory at createGLShader");
+        std.debug.panic(
+            "Allocator check for {} failed, leaked memory at {s}\n",
+            .{ @TypeOf(gpa), @src().fn_name },
+        );
     };
 
     const buffer = allocator.alloc(u8, stat.size) catch {
