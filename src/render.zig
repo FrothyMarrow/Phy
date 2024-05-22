@@ -1,4 +1,6 @@
 const std = @import("std");
+const shader = @import("shader.zig");
+
 const c = @cImport({
     @cInclude("OpenGL/gl3.h");
 });
@@ -16,6 +18,9 @@ const Renderer = struct {
         c.glClearColor(color.r, color.g, color.b, color.a);
     }
 
+    pub fn useShader(_: Renderer, shader_program: shader.Shader) void {
+        c.glUseProgram(shader_program.program_id);
+    }
 };
 
 pub fn create() Renderer {

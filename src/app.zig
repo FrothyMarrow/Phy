@@ -1,9 +1,11 @@
 const std = @import("std");
 const win = @import("window.zig");
 const render = @import("render.zig");
+const shader = @import("shader.zig");
 
 const AppError = error{
     WindowCreationError,
+    ShaderCreationError,
 };
 
 pub fn main() AppError!void {
@@ -14,8 +16,17 @@ pub fn main() AppError!void {
     defer window.deinit();
 
     const renderer = render.create();
-    };
 
+    const shaderProgram = shader.create(
+        "shader/vertex.glsl",
+        "shader/fragment.glsl",
+    ) catch {
+        std.debug.print("Failed to create shader program\n", .{});
+        return error.ShaderCreationError;
+    };
+    defer shaderProgram.deinit();
+
+    renderer.useShader(shaderProgram);
 
     while (!window.shouldClose()) {
         window.pollEvents();
