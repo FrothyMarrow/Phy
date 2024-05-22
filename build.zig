@@ -11,29 +11,26 @@ pub fn build(b: *std.Build) void {
         .link_libc = true,
         .optimize = mode,
         .target = target,
+        .root_source_file = .{
+            .src_path = .{
+                .owner = b,
+                .sub_path = "src/app.zig",
+            },
+        },
     });
 
     phy.defineCMacro("GL_SILENCE_DEPRECATION", &.{});
     phy.defineCMacro("GLFW_INCLUDE_GLCOREARB", &.{});
 
-    phy.addIncludePath(.{
-        .src_path = .{ .owner = b, .sub_path = "include" },
-    });
-    phy.addCSourceFiles(.{
-        .root = .{
-            .src_path = .{ .owner = b, .sub_path = "src" },
-        },
-        .files = &.{
-            "main.c",
-            "vector.c",
-        },
-    });
     phy.linkSystemLibrary("glfw");
     phy.linkFramework("OpenGL");
 
     b.installArtifact(phy);
 
     const phy_run = b.addRunArtifact(phy);
-    const run_step = b.step("run", "Run the phy binary");
+    const run_step = b.step(
+        "run",
+        "Run the phy binary",
+    );
     run_step.dependOn(&phy_run.step);
 }
