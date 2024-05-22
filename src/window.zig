@@ -3,7 +3,7 @@ const c = @cImport({
     @cInclude("GLFW/glfw3.h");
 });
 
-const WindowSpec = struct {
+pub const WindowSpec = struct {
     title: []const u8,
     width: u32,
     height: u32,
@@ -71,6 +71,7 @@ pub fn create(spec: WindowSpec) WindowError!Window {
 
 fn glfwErrorCallback(errorCode: c_int, description: [*c]const u8) callconv(.C) void {
     std.debug.print("GLFW error: {}\n", .{errorCode});
+
     if (description != null) {
         std.debug.print("Description: {?s}\n", .{description});
     }

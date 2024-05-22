@@ -12,7 +12,7 @@ pub const Shader = struct {
     }
 };
 
-const ShaderError = error{
+pub const ShaderError = error{
     ShaderAllocationError,
     ShaderFileNotOpenedError,
     ShaderFileNotReadError,
@@ -46,16 +46,18 @@ fn createGLShader(path: []const u8, shader_type: u32) ShaderError!u32 {
         std.debug.print("Failed to stat file: {s}\n", .{path});
         return ShaderError.ShaderFileStatError;
     };
-
     defer file.close();
 
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
+    defer if (gpa.deinit() != .ok) {
+        @panic("GeneralPurposeAllocator check failed, leaked memory at createGLShader");
+    };
+
     const buffer = allocator.alloc(u8, stat.size) catch {
         std.debug.print("Failed to allocate buffer for file: {s}\n", .{path});
         return ShaderError.ShaderAllocationError;
     };
-
     defer allocator.free(buffer);
 
     file.reader().readNoEof(buffer) catch {
