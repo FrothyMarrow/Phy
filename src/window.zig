@@ -13,19 +13,19 @@ pub const Window = struct {
     windowPtr: *c.struct_GLFWwindow,
     spec: WindowSpec,
 
-    pub fn shouldClose(self: *Window) bool {
+    pub fn shouldClose(self: Window) bool {
         return c.glfwWindowShouldClose(self.windowPtr) != 0;
     }
 
-    pub fn swapBuffers(self: *Window) void {
+    pub fn swapBuffers(self: Window) void {
         c.glfwSwapBuffers(self.windowPtr);
     }
 
-    pub fn pollEvents(_: *Window) void {
+    pub fn pollEvents(_: Window) void {
         c.glfwPollEvents();
     }
 
-    pub fn deinit(self: *Window) void {
+    pub fn deinit(self: Window) void {
         c.glfwDestroyWindow(self.windowPtr);
         c.glfwTerminate();
     }
@@ -36,7 +36,7 @@ pub const WindowError = error{
     GlfwCreateWindowFailed,
 };
 
-pub fn create(allocator: std.mem.Allocator, spec: WindowSpec) WindowError!*Window {
+pub fn create(spec: WindowSpec) WindowError!Window {
     if (c.glfwInit() == 0) {
         std.debug.print("Failed to initialize GLFW\n", .{});
         return WindowError.GlfwInitFailed;
@@ -48,11 +48,6 @@ pub fn create(allocator: std.mem.Allocator, spec: WindowSpec) WindowError!*Windo
     c.glfwWindowHint(c.GLFW_RESIZABLE, c.GLFW_FALSE);
 
     _ = c.glfwSetErrorCallback(glfwErrorCallback);
-
-    const window = allocator.create(Window) catch {
-        std.debug.print("Failed to allocate Window struct\n", .{});
-        return WindowError.GlfwCreateWindowFailed;
-    };
 
     const windowPtr = c.glfwCreateWindow(
         @intCast(spec.width),
@@ -68,12 +63,10 @@ pub fn create(allocator: std.mem.Allocator, spec: WindowSpec) WindowError!*Windo
 
     c.glfwMakeContextCurrent(windowPtr);
 
-    window.* = .{
+    return Window{
         .windowPtr = windowPtr,
         .spec = spec,
     };
-
-    return window;
 }
 
 fn glfwErrorCallback(errorCode: c_int, description: [*c]const u8) callconv(.C) void {
