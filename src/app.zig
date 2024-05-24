@@ -3,6 +3,10 @@ const win = @import("window.zig");
 const render = @import("render.zig");
 const shader = @import("shader.zig");
 
+const c = @cImport({
+    @cInclude("OpenGL/gl3.h");
+});
+
 const AppError = error{
     WindowCreationError,
     ShaderCreationError,
@@ -15,7 +19,8 @@ pub fn main() AppError!void {
     };
     defer window.deinit();
 
-    const renderer = render.create();
+    var renderer = render.create();
+    defer renderer.deinit();
 
     const shaderProgram = shader.create(
         "shader/vertex.glsl",
@@ -28,15 +33,23 @@ pub fn main() AppError!void {
 
     renderer.useShader(shaderProgram);
 
+    renderer.drawTriangles(&.{
+        0.0,  0.5,  0.0,
+        -0.5, -0.5, 0.0,
+        0.5,  -0.5, 0.0,
+    });
+
     while (!window.shouldClose()) {
         window.pollEvents();
 
         renderer.clearColor(.{
-            .r = 0.2,
+            .r = 1.0,
             .g = 0.3,
             .b = 0.3,
             .a = 1.0,
         });
+
+        renderer.render();
 
         window.swapBuffers();
     }
