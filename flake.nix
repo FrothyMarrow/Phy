@@ -30,8 +30,8 @@
 
       # The shader paths are hardcoded in the source code
       patchPhase = ''
-        sed -i "s|./shader/vertex.glsl|$out/shader/vertex.glsl|" src/main.c
-        sed -i "s|./shader/fragment.glsl|$out/shader/fragment.glsl|" src/main.c
+        sed -i "s|shader/vertex.glsl|$out/shader/vertex.glsl|" src/app.zig
+        sed -i "s|shader/fragment.glsl|$out/shader/fragment.glsl|" src/app.zig
       '';
 
       NIX_LDFLAGS = nixLDFlags;
