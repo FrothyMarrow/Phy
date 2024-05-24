@@ -17,6 +17,7 @@ pub const ShaderError = error{
     ShaderFileNotOpenedError,
     ShaderFileNotReadError,
     ShaderFileStatError,
+    ShaderCompilationError,
 };
 
 pub fn create(vertex_source: []const u8, fragment_source: []const u8) ShaderError!Shader {
@@ -50,27 +51,46 @@ fn createGLShader(path: []const u8, shader_type: u32) ShaderError!u32 {
 
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
-    defer if (gpa.deinit() != .ok) {
-        std.debug.panic(
-            "Allocator check for {} failed, leaked memory at {s}\n",
-            .{ @TypeOf(gpa), @src().fn_name },
-        );
-    };
+    defer {
+        if (gpa.deinit() != .ok) {
+            std.debug.panic(
+                "Allocator check for {} failed, leaked memory at {s}\n",
+                .{ @TypeOf(gpa), @src().fn_name },
+            );
+        }
+    }
 
-    const buffer = allocator.alloc(u8, stat.size) catch {
+    const buffer = allocator.alloc(u8, stat.size + 1) catch {
         std.debug.print("Failed to allocate buffer for file: {s}\n", .{path});
         return ShaderError.ShaderAllocationError;
     };
+    buffer[buffer.len - 1] = 0;
     defer allocator.free(buffer);
 
-    file.reader().readNoEof(buffer) catch {
+    const read = file.reader().readAll(buffer) catch {
         std.debug.print("Failed to read file: {s}\n", .{path});
         return ShaderError.ShaderFileNotReadError;
     };
 
+    if (read != stat.size) {
+        std.debug.print("Failed to read file: {s}\n", .{path});
+        return ShaderError.ShaderFileNotReadError;
+    }
+
     const shader = c.glCreateShader(shader_type);
     c.glShaderSource(shader, 1, @ptrCast(&buffer), null);
     c.glCompileShader(shader);
+
+    var success: i32 = 0;
+    var infoLog = std.mem.zeroes([512]u8);
+
+    c.glGetShaderiv(shader, c.GL_COMPILE_STATUS, &success);
+
+    if (success == 0) {
+        c.glGetShaderInfoLog(shader, 512, null, &infoLog);
+        std.debug.print("Shader compilation failed: {s}\n", .{infoLog});
+        return ShaderError.ShaderCompilationError;
+    }
 
     return shader;
 }
