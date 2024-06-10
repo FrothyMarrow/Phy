@@ -7,6 +7,11 @@ const c = @cImport({
 pub const Shader = struct {
     program_id: u32,
 
+    pub fn uploadMat4(self: *Shader, name: []const u8, value: [16]f32) void {
+        const location = c.glGetUniformLocation(self.program_id, @ptrCast(name));
+        c.glUniformMatrix4fv(location, 1, c.GL_FALSE, @ptrCast(&value));
+    }
+
     pub fn deinit(self: Shader) void {
         c.glDeleteProgram(self.program_id);
     }

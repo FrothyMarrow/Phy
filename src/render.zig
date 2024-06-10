@@ -1,5 +1,6 @@
 const std = @import("std");
 const shader = @import("shader.zig");
+const camera = @import("camera.zig");
 
 const c = @cImport({
     @cInclude("OpenGL/gl3.h");
@@ -16,13 +17,15 @@ pub const Renderer = struct {
     vertexArray: u32,
     vertexBuffer: u32,
     length: u32,
+    shader_program: shader.Shader,
 
     pub fn clearColor(_: Renderer, color: Color) void {
         c.glClear(c.GL_COLOR_BUFFER_BIT);
         c.glClearColor(color.r, color.g, color.b, color.a);
     }
 
-    pub fn useShader(_: Renderer, shader_program: shader.Shader) void {
+    pub fn useShader(self: *Renderer, shader_program: shader.Shader) void {
+        self.shader_program = shader_program;
         c.glUseProgram(shader_program.program_id);
     }
 
@@ -41,6 +44,11 @@ pub const Renderer = struct {
         c.glEnableVertexAttribArray(0);
     }
 
+    pub fn useCamera(self: *Renderer, cam: camera.Camera) void {
+        self.shader_program.uploadMat4("view", cam.getViewMatrix());
+        self.shader_program.uploadMat4("projection", cam.getProjectionMatrix());
+    }
+
     pub fn render(self: Renderer) void {
         c.glDrawArrays(c.GL_TRIANGLES, 0, @intCast(self.length / 3));
     }
@@ -56,5 +64,6 @@ pub fn create() Renderer {
         .vertexArray = 0,
         .vertexBuffer = 0,
         .length = 0,
+        .shader_program = shader.Shader{ .program_id = 0 },
     };
 }
